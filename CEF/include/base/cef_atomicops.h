@@ -67,7 +67,7 @@
 // If the Chromium implementation diverges the below implementation should be
 // updated to match.
 
-#include <stdint.h>
+#include "../stdint.h"
 
 #include "include/base/cef_build.h"
 

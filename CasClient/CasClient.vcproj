@@ -114,7 +114,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="../CEF/include;../CEF;../"
+				AdditionalIncludeDirectories="../CEF/include;../CEF;../;./rapidjson"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -133,10 +133,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libcef.lib libcef_dll_wrapper.lib"
+				AdditionalDependencies="libcef.lib libcef_dll_wrapper.lib CasUtility.lib CasCom.lib"
 				OutputFile="../bin/$(ProjectName).exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\CEF\Release"
+				AdditionalLibraryDirectories="..\CEF\Release;..\bin"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -277,6 +277,14 @@
 			</File>
 			<File
 				RelativePath=".\CasClient.rc"
+				>
+			</File>
+			<File
+				RelativePath=".\castle.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\icon1.ico"
 				>
 			</File>
 			<File

@@ -78,7 +78,7 @@ namespace DuiLib {
 
 
 	CPaintManagerUI::CPaintManagerUI() :
-		m_hWndPaint(NULL),
+	m_hWndPaint(NULL),
 		m_hDcPaint(NULL),
 		m_hDcOffscreen(NULL),
 		m_hDcBackground(NULL),
@@ -816,8 +816,8 @@ namespace DuiLib {
 					event.Type = UIEVENT_WINDOWSIZE;
 					event.pSender = m_pFocus;
 					event.dwTimestamp = ::GetTickCount();
-                    event.wParam = wParam;
-                    event.lParam = lParam;
+					event.wParam = wParam;
+					event.lParam = lParam;
 					m_pFocus->Event(event);
 				}
 				if( m_pRoot != NULL ) m_pRoot->NeedUpdate();
@@ -833,7 +833,11 @@ namespace DuiLib {
 						event.pSender = pTimer->pSender;
 						event.wParam = pTimer->nLocalID;
 						event.dwTimestamp = ::GetTickCount();
-						pTimer->pSender->Event(event);
+						if (pTimer->pSender)
+						{
+							pTimer->pSender->Event(event);
+						}
+						
 						break;
 					}
 				}
@@ -852,8 +856,8 @@ namespace DuiLib {
 					event.Type = UIEVENT_MOUSEHOVER;
 					event.pSender = m_pEventHover;
 					event.dwTimestamp = ::GetTickCount();
-                    event.wParam = wParam;
-                    event.lParam = lParam;
+					event.wParam = wParam;
+					event.lParam = lParam;
 					m_pEventHover->Event(event);
 				}
 				// Create tooltip information
@@ -887,7 +891,7 @@ namespace DuiLib {
 			{
 				// Start tracking this entire window again...
 				if( !m_bMouseTracking ) 
-                {
+				{
 					TRACKMOUSEEVENT tme = { 0 };
 					tme.cbSize = sizeof(TRACKMOUSEEVENT);
 					tme.dwFlags = TME_HOVER | TME_LEAVE;
@@ -904,10 +908,10 @@ namespace DuiLib {
 				TEventUI event = { 0 };
 				event.ptMouse = pt;
 				event.dwTimestamp = ::GetTickCount();
-                event.wParam = wParam;
-                event.lParam = lParam;
+				event.wParam = wParam;
+				event.lParam = lParam;
 				if( pNewHover != m_pEventHover && m_pEventHover != NULL ) 
-                {
+				{
 					event.Type = UIEVENT_MOUSELEAVE;
 					event.pSender = m_pEventHover;
 					m_pEventHover->Event(event);
@@ -915,20 +919,20 @@ namespace DuiLib {
 					if( m_hwndTooltip != NULL ) ::SendMessage(m_hwndTooltip, TTM_TRACKACTIVATE, FALSE, (LPARAM) &m_ToolTip);
 				}
 				if( pNewHover != m_pEventHover && pNewHover != NULL ) 
-                {
+				{
 					event.Type = UIEVENT_MOUSEENTER;
 					event.pSender = pNewHover;
 					pNewHover->Event(event);
 					m_pEventHover = pNewHover;
 				}
 				if( m_pEventClick != NULL ) 
-                {
+				{
 					event.Type = UIEVENT_MOUSEMOVE;
 					event.pSender = m_pEventClick;
 					m_pEventClick->Event(event);
 				}
 				else if( pNewHover != NULL ) 
-                {
+				{
 					event.Type = UIEVENT_MOUSEMOVE;
 					event.pSender = pNewHover;
 					pNewHover->Event(event);
@@ -975,8 +979,8 @@ namespace DuiLib {
 				event.ptMouse = pt;
 				event.wKeyState = (WORD)wParam;
 				event.dwTimestamp = ::GetTickCount();
-                event.wParam = wParam;
-                event.lParam = lParam;
+				event.wParam = wParam;
+				event.lParam = lParam;
 				pControl->Event(event);
 				m_pEventClick = pControl;
 			}
@@ -1060,7 +1064,7 @@ namespace DuiLib {
 				event.pSender = m_pEventClick;
 				event.ptMouse = pt;
 				event.wKeyState = (WORD)wParam;
-                event.wParam=wParam;
+				event.wParam=wParam;
 				event.lParam = (LPARAM)m_pEventClick;
 				event.dwTimestamp = ::GetTickCount();
 
@@ -1081,16 +1085,16 @@ namespace DuiLib {
 				event.Type = UIEVENT_SCROLLWHEEL;
 				event.pSender = pControl;
 
-                CDuiString str = pControl->GetClass();
-                //此处处理欠妥，待验证历史遗留问题
-                if (_tcsicmp(pControl->GetClass(),_T("WKEWebkitUI"))==0)
-                    event.wParam = wParam;
-                else
-				    event.wParam = MAKELPARAM(zDelta < 0 ? SB_LINEDOWN : SB_LINEUP, 0);
-				
-                //////////////////////////////////////////////////////////////////////////
+				CDuiString str = pControl->GetClass();
+				//此处处理欠妥，待验证历史遗留问题
+				if (_tcsicmp(pControl->GetClass(),_T("WKEWebkitUI"))==0)
+					event.wParam = wParam;
+				else
+					event.wParam = MAKELPARAM(zDelta < 0 ? SB_LINEDOWN : SB_LINEUP, 0);
+
+				//////////////////////////////////////////////////////////////////////////
 				event.lParam = lParam;
-                event.wKeyState = MapKeyState();
+				event.wKeyState = MapKeyState();
 				event.dwTimestamp = ::GetTickCount();
 				pControl->Event(event);
 
@@ -1107,7 +1111,7 @@ namespace DuiLib {
 				event.ptMouse = m_ptLastMousePos;
 				event.wKeyState = MapKeyState();
 				event.dwTimestamp = ::GetTickCount();
-                event.wParam=wParam;
+				event.wParam=wParam;
 				m_pFocus->Event(event);
 			}
 			break;
@@ -1120,7 +1124,7 @@ namespace DuiLib {
 				event.ptMouse = m_ptLastMousePos;
 				event.wKeyState = MapKeyState();
 				event.dwTimestamp = ::GetTickCount();
-                event.wParam=wParam;
+				event.wParam=wParam;
 				m_pFocus->Event(event);
 				m_pEventKey = m_pFocus;
 			}
@@ -1134,7 +1138,7 @@ namespace DuiLib {
 				event.ptMouse = m_ptLastMousePos;
 				event.wKeyState = MapKeyState();
 				event.dwTimestamp = ::GetTickCount();
-                event.wParam=wParam;
+				event.wParam=wParam;
 				m_pEventKey->Event(event);
 				m_pEventKey = NULL;
 			}
@@ -1186,16 +1190,16 @@ namespace DuiLib {
 				return true;
 			}
 			break;
-        case WM_IME_STARTCOMPOSITION:      //输入法
-            {
-                if( m_pFocus == NULL ) break;
-                TEventUI event = { 0 };
-                event.Type = UIEVENT_IME_STARTCOMPOSITION;
-                event.wParam = wParam;
-                event.lParam = lParam;
-                m_pFocus->Event(event);
-            }
-            break;
+		case WM_IME_STARTCOMPOSITION:      //输入法
+			{
+				if( m_pFocus == NULL ) break;
+				TEventUI event = { 0 };
+				event.Type = UIEVENT_IME_STARTCOMPOSITION;
+				event.wParam = wParam;
+				event.lParam = lParam;
+				m_pFocus->Event(event);
+			}
+			break;
 		default:
 			break;
 		}

@@ -341,7 +341,8 @@ namespace DuiLib {
 				if(!pParentNode){
 					CTreeViewUI* pTreeView = static_cast<CTreeViewUI*>(pParent->GetInterface(_T("TreeView")));
 					ASSERT(pTreeView);
-					if( pTreeView == NULL ) return NULL;
+					if( pTreeView == NULL )
+						return NULL;
 					if( !pTreeView->Add(pNode) ) {
 						delete pNode;
 						continue;
@@ -384,8 +385,8 @@ namespace DuiLib {
 					if( _tcscmp(pstrClass, DUI_CTR_CONTAINER) == 0 )              pControl = new CContainerUI;
 					else if( _tcscmp(pstrClass, DUI_CTR_TABLAYOUT) == 0 )         pControl = new CTabLayoutUI;
 					else if( _tcscmp(pstrClass, DUI_CTR_SCROLLBAR) == 0 )         pControl = new CScrollBarUI;
-                    else if (_tcscmp(pstrClass,DUI_CTR_IPADDRESS)==0)             pControl = new CIPAddressUI;
-                  
+					else if (_tcscmp(pstrClass,DUI_CTR_IPADDRESS)==0)             pControl = new CIPAddressUI;
+
 					break;
 				case 10:
 					if( _tcscmp(pstrClass, DUI_CTR_LISTHEADER) == 0 )             pControl = new CListHeaderUI;
@@ -440,7 +441,7 @@ namespace DuiLib {
 			{
 #ifdef _DEBUG
 				DUITRACE(_T("Î´Öª¿Ø¼þ:%s"),pstrClass);
-                continue;
+				continue;
 #else
 				continue;
 #endif
@@ -460,7 +461,8 @@ namespace DuiLib {
 				{
 					if( pContainer == NULL ) pContainer = static_cast<IContainerUI*>(pParent->GetInterface(_T("IContainer")));
 					ASSERT(pContainer&&"Unkonw Container");
-					if( pContainer == NULL ) return NULL;
+					if( pContainer == NULL )
+						return NULL;
 					if( !pContainer->Add(pControl) ) {
 						delete pControl;
 						continue;
@@ -489,7 +491,8 @@ namespace DuiLib {
 				pControl->SetManager(NULL, NULL, false);
 			}
 			// Return first item
-			if( pReturn == NULL ) pReturn = pControl;
+			if( pReturn == NULL )
+				pReturn = pControl;
 		}
 		return pReturn;
 	}

@@ -14,6 +14,8 @@ private:
 	typedef std::map<std::pair<std::string, int>, std::pair<CefRefPtr<CefV8Context>, CefRefPtr<CefV8Value> > >CallbackMap;
 	CallbackMap callback_map_;
 
+	void getLogin(const CefString &para);
+
 
 public:
 	IMPLEMENT_REFCOUNTING(CCEFV8HandlerEx);

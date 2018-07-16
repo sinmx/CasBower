@@ -115,15 +115,18 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	//////////////////////////////////////////////////////////////////////////
 
 	
-	CEFWebkitBrowserWnd pFrame;
-	pFrame.Create(NULL, _T("浏览器"), UI_WNDSTYLE_FRAME | WS_CLIPCHILDREN, WS_EX_ACCEPTFILES);
-	pFrame.CenterWindow();
+	//CEFWebkitBrowserWnd pFrame;
+	CEFWebkitBrowserWnd::instance()->Create(NULL, _T("浏览器"), UI_WNDSTYLE_FRAME | WS_CLIPCHILDREN, WS_EX_ACCEPTFILES);
+
+	HICON hIcon = ::LoadIconW(hInstance, MAKEINTRESOURCE(IDI_CASTLE));  
+	::SendMessage(CEFWebkitBrowserWnd::instance()->GetHWND(), STM_SETICON, IMAGE_ICON, (LPARAM)(UINT)hIcon); 
+	CEFWebkitBrowserWnd::instance()->CenterWindow();
 
 	//	绘制阴影
 
 	CShadowWindow shadowwnd;
 	CShadowWindow::Initialize(hInstance);
-	shadowwnd.Create(pFrame.GetHWND());
+	shadowwnd.Create(CEFWebkitBrowserWnd::instance()->GetHWND());
 	shadowwnd.SetSize(6);
 	//shadowwnd.SetPosition(4, 4);
 	shadowwnd.SetPosition(0, 0);
@@ -144,7 +147,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		CPaintManagerUI::MessageLoop();
 	}
 
-
+	CEFWebkitBrowserWnd::instance()->destroy();
 	CefShutdown();
 
 	//退出程序并释放COM库

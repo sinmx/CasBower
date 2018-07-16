@@ -3,7 +3,7 @@
 
 CCefClientApp::CCefClientApp()
 {
-	v8Handler_ = new CCEFV8HandlerEx;
+	m_v8Handler = new CCEFV8HandlerEx;
 
 }
 
@@ -62,10 +62,10 @@ void CCefClientApp::OnWebKitInitialized()
 
 	// JavaScript里调用app.jsInvokeCPlusPlus时，就会去通过CefRegisterExtension注册的CefV8Handler列表里查找
 	// 找到"v8/app"对应的CCEFV8HandlerEx，就调用它的Execute方法
-	// 假设v8Handler_是CCefClientApp的一个成员变量
-	//v8Handler_ = new CCEFV8HandlerEx();
+	// 假设m_v8Handler是CCefClientApp的一个成员变量
+	//m_v8Handler = new CCEFV8HandlerEx();
 
-	CefRegisterExtension("v8/cef", app_code, v8Handler_);
+	CefRegisterExtension("v8/cef", app_code, m_v8Handler);
 
 }
 
@@ -87,5 +87,5 @@ void CCefClientApp::OnContextCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<Ce
 
 void CCefClientApp::OnContextReleased(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context)
 {
-	v8Handler_ = NULL;
+	m_v8Handler = NULL;
 }

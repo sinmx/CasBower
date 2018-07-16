@@ -3,6 +3,15 @@
 #include "resource.h"
 #include "CEFWebkit.h"
 
+struct SMachineInfo
+{
+	UINT plcPort, plcBps, flowPort, flowBps;
+	CasT *pPLC;	
+	CasT* pFlow;
+	bool bUse;
+	SMachineInfo():pPLC(NULL),pFlow(NULL),bUse(false){}
+};
+
 class CEFWebkitBrowserWnd : public WindowImplBase
 {
 
@@ -12,8 +21,8 @@ public:
 
 
     virtual LPCTSTR GetWindowClassName() const      { return _T("CEFWebkitBrowserWnd"); }
-    virtual CDuiString GetSkinFile()                { return _T("skin.xml"); }
-    virtual CDuiString GetSkinFolder()              { return _T("Skin"); }
+    virtual CDuiString GetSkinFile()                { return _T("root.xml"); }
+    virtual CDuiString GetSkinFolder()              { return _T("cas"); }
     virtual CControlUI* CreateControl(LPCTSTR pstrClass);
 	virtual void OnFinalMessage(HWND hWnd);
 	virtual LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
@@ -39,19 +48,29 @@ public:
 	void SwitchUIState();
 
 public:
-    static CEFWebkitBrowserWnd* pCEFWebkitBrowserWnd;
     
-    wstring strURL_;
-    wstring strTitle_;
-    CCEFWebkitUI* pWKEWebkitCtrl_; 
-private:
-	//CRichEditUI*			pURLEditCtrl_;
-	//CEditUI*				pSearchEditCtrl_;
-	CLabelUI*				pWebStateCtrl_;
-	CHorizontalLayoutUI*	pWebTabContainer_;
-	CButtonUI*				pGoBackCtrl_;			
-	CButtonUI*				pGoForwardCtrl_;		
+    wstring m_strURL;
+    wstring m_strTitle;
+    CCEFWebkitUI* m_pWKEWebkitCtrl; 
 
+public:
+	static CEFWebkitBrowserWnd* instance(); 
+	static void destroy();
+	//ini
+	void init();
+	void resetInI();
+	//db
+	_ConnectionPtr &getConn() {return m_pConnection;}
+	CDuiString getField(const _RecordsetPtr &pRecordset, const CDuiString strValue);
+	DWORD OpenQuery(_RecordsetPtr &pRecordset, const CDuiString strSql);
+	DWORD CloseQuery(_RecordsetPtr &pRecordset);
+	DWORD ExecuteDML(const CDuiString strSql, int *const pnRowsInvolved=NULL);
+	//com
+	CasT* getPLC() {return m_SMachineInfo.pPLC;}
+	CasT* getFlow() {return m_SMachineInfo.pFlow;}
+	int setgetPLC(const char *pchSet, bool bSetOn, const char *pchGet);
+	int getsetPLC(const char *pchGet, bool bGetOn, const char *pchSet, bool bSetOn);
+private:		
 	class COptionTag
 	{
 	public:
@@ -62,7 +81,9 @@ private:
 		};
 	};
 
-	
-
+	static CEFWebkitBrowserWnd	*s_instance;
+	_ConnectionPtr			m_pConnection;
+	_variant_t m_vField;
+	SMachineInfo m_SMachineInfo;
 
 };

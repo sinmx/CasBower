@@ -62,6 +62,12 @@ using namespace DuiLib;
 #   endif
 #endif
 
+#include "..\CasCom\\CasT.h"
+#include "..\CasUtility\CasUtility.h"
+
+#define TIP_INFO	L"Castle_browse"
+#define DW_SAFE_DELETE(p) { delete (p); p = NULL; }
+
 
 #define  UM_CEF_WEBLOADSTART			WM_USER+100
 #define  UM_CEF_WEBLOADEND				WM_USER+101

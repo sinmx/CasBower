@@ -12,7 +12,7 @@ namespace DuiLib
 		DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK,OnClick)
 		DUI_END_MESSAGE_MAP()
 
-	WindowImplBase::WindowImplBase()
+		WindowImplBase::WindowImplBase()
 	{
 		m_dwWindowPosState = SIZE_MINIMIZED;
 	};
@@ -210,7 +210,7 @@ namespace DuiLib
 
 	LRESULT WindowImplBase::OnGetMinMaxInfo(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		
+
 
 		MONITORINFO Monitor = {};
 		Monitor.cbSize = sizeof(Monitor);
@@ -220,7 +220,7 @@ namespace DuiLib
 		rcWork.Offset(-Monitor.rcMonitor.left, -Monitor.rcMonitor.top);
 
 		// 计算最大化时，正确的原点坐标
-        LPMINMAXINFO lpMMI = (LPMINMAXINFO) lParam;
+		LPMINMAXINFO lpMMI = (LPMINMAXINFO) lParam;
 		lpMMI->ptMaxPosition.x	= rcWork.left;
 		lpMMI->ptMaxPosition.y	= rcWork.top;
 
@@ -381,7 +381,7 @@ namespace DuiLib
 			break;
 		}
 
-		
+
 		if (GetResourceType()==UILIB_RESOURCE)
 		{
 			STRINGorID xml(_ttoi(GetSkinFile().GetData()));
@@ -393,8 +393,8 @@ namespace DuiLib
 		if (pRoot==NULL)
 		{
 			CDuiString sError = _T("加载资源文件失败：");
-            sError+=GetSkinFolder();
-            sError+=" : ";
+			sError+=GetSkinFolder();
+			sError+=" : ";
 			sError += GetSkinFile();
 			MessageBox(GetForegroundWindow(), sError, _T("Duilib") ,MB_OK|MB_ICONERROR);
 			ExitProcess(1);
@@ -470,16 +470,16 @@ namespace DuiLib
 		return 0;
 	}
 
-    LRESULT WindowImplBase::OnPointerDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-    {
-        bHandled = FALSE;
-        return 0;
-    }
-    LRESULT WindowImplBase::OnPointerUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-    {
-        bHandled = FALSE;
-        return 0;
-    }
+	LRESULT WindowImplBase::OnPointerDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		bHandled = FALSE;
+		return 0;
+	}
+	LRESULT WindowImplBase::OnPointerUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		bHandled = FALSE;
+		return 0;
+	}
 
 
 #if(WINVER >= 0x0601)
@@ -608,16 +608,16 @@ namespace DuiLib
 			}
 #endif
 #if(WINVER >= 0x0602)
-        case WM_POINTERUP:
-            {
-                lRes = OnPointerUp(uMsg,wParam,lParam,bHandled);
-                break;
+		case WM_POINTERUP:
+			{
+				lRes = OnPointerUp(uMsg,wParam,lParam,bHandled);
+				break;
 
-            }
+			}
 		case WM_POINTERDOWN:
 			{
-                lRes = OnPointerDown(uMsg,wParam,lParam,bHandled);
-                break;
+				lRes = OnPointerDown(uMsg,wParam,lParam,bHandled);
+				break;
 			}
 #endif
 		default:
@@ -701,14 +701,14 @@ namespace DuiLib
 		return CNotifyPump::NotifyPump(msg);
 	}
 
-    int WindowImplBase::DuiMessageBox(HWND hWnd,LPCTSTR lpText,LPCTSTR lpCaption,UINT uType)
-    {
-        CDuiString strText=lpText;
-        CDuiString strCaption=lpCaption;
-        m_PaintManager.PaserString(strText);
-        m_PaintManager.PaserString(strCaption);
-        return MessageBox(hWnd,strText.GetData(),strCaption.GetData(),uType);
-    }
+	int WindowImplBase::DuiMessageBox(HWND hWnd,LPCTSTR lpText,LPCTSTR lpCaption,UINT uType)
+	{
+		CDuiString strText=lpText;
+		CDuiString strCaption=lpCaption;
+		m_PaintManager.PaserString(strText);
+		m_PaintManager.PaserString(strCaption);
+		return MessageBox(hWnd,strText.GetData(),strCaption.GetData(),uType);
+	}
 
 }
 

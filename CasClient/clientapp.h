@@ -31,7 +31,7 @@ public:
 
 
 private:
-	CefRefPtr<CCEFV8HandlerEx> v8Handler_;
+	CefRefPtr<CCEFV8HandlerEx> m_v8Handler;
 	// Include the default reference counting implementation.
 	IMPLEMENT_REFCOUNTING(CCefClientApp);
 

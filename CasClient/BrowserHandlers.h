@@ -61,7 +61,7 @@ public:
 	//CefRefPtr<CefBrowser> browser_;
 
 	HWND hWnd_; //接收消息的句柄
-	CefString strTitle_; //网址标题
+	CefString m_strTitle; //网址标题
 
 	// List of existing browser windows. Only accessed on the CEF UI thread.
 	typedef std::vector<CefRefPtr<CefBrowser> > BrowserList;
