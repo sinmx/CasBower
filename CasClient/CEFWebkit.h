@@ -53,7 +53,7 @@ namespace DuiLib
 	protected:
 
 		HWND hWebKitBrowserWnd_;
-		//std::vector<std::wstring> strURLs_;
+		//vector<wstring> strURLs_;
 		CefRefPtr<CCefClientHandler>  clientHandler_; //CefClient实现，用于处理Browser实例相关的回调
 		int nHitIndex_;
 

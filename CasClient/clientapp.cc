@@ -41,7 +41,7 @@ void CCefClientApp::OnContextInitialized()
 
 void CCefClientApp::OnWebKitInitialized()
 {
-	std::string app_code =
+	string app_code =
 		//-----------------------------------
 		//声明JavaScript里要调用的Cpp方法
 		"var cef;"

@@ -48,6 +48,7 @@
 #include "DuiLib\Ex\ShadowWindow.h"
 
 using namespace DuiLib;
+using namespace std;
 #ifdef _DEBUG
 #   ifdef _UNICODE
 #       pragma comment(lib, "lib\\DuiLib_ud.lib")

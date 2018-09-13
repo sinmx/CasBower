@@ -43,7 +43,7 @@ namespace DuiLib
 			info.SetAsChild(hWebKitBrowserWnd_, rectnew);
 			CefBrowserSettings browserSettings;
 
-			std::wstring strURL(_T("http://www.baidu.com"));
+			wstring strURL(_T("http://www.baidu.com"));
 			CefBrowserHost::CreateBrowser(info, client, strURL, browserSettings, NULL);
 
 			strURLs_.push_back(strURL);
@@ -217,7 +217,7 @@ namespace DuiLib
 	{
 		int idx = 0;
 
-		for (std::vector<CefRefPtr<CefBrowser> >::iterator it = clientHandler_->browser_list_.begin(); it != clientHandler_->browser_list_.end(); it++)
+		for (vector<CefRefPtr<CefBrowser> >::iterator it = clientHandler_->browser_list_.begin(); it != clientHandler_->browser_list_.end(); it++)
 		{
 
 			if (nWebBrowserID == it->get()->GetIdentifier())
@@ -234,7 +234,7 @@ namespace DuiLib
 	void CCEFWebkitUI::ReLoad(int nWebBrowserID)
 	{
 
-		for (std::vector<CefRefPtr<CefBrowser> >::iterator it = clientHandler_->browser_list_.begin(); it != clientHandler_->browser_list_.end(); it++)
+		for (vector<CefRefPtr<CefBrowser> >::iterator it = clientHandler_->browser_list_.begin(); it != clientHandler_->browser_list_.end(); it++)
 		{
 			if (nWebBrowserID == it->get()->GetIdentifier())
 			{
@@ -247,7 +247,7 @@ namespace DuiLib
 	void CCEFWebkitUI::LoadURL(int nWebBrowserID, CefString & strURL)
 	{
 
-		for (std::vector<CefRefPtr<CefBrowser> >::iterator it = clientHandler_->browser_list_.begin(); it != clientHandler_->browser_list_.end(); it++)
+		for (vector<CefRefPtr<CefBrowser> >::iterator it = clientHandler_->browser_list_.begin(); it != clientHandler_->browser_list_.end(); it++)
 		{
 			if (nWebBrowserID == it->get()->GetIdentifier())
 			{
@@ -263,7 +263,7 @@ namespace DuiLib
 	{
 		CefString strURL = "";
 
-		for (std::vector<CefRefPtr<CefBrowser> >::iterator it = clientHandler_->browser_list_.begin(); it != clientHandler_->browser_list_.end(); it++)
+		for (vector<CefRefPtr<CefBrowser> >::iterator it = clientHandler_->browser_list_.begin(); it != clientHandler_->browser_list_.end(); it++)
 		{
 
 			if (nWebBrowserID == it->get()->GetIdentifier())
@@ -280,7 +280,7 @@ namespace DuiLib
 	BOOL CCEFWebkitUI::CanGoForward(int nWebBrowserID)
 	{
 
-		for (std::vector<CefRefPtr<CefBrowser> >::iterator it = clientHandler_->browser_list_.begin(); it != clientHandler_->browser_list_.end(); it++)
+		for (vector<CefRefPtr<CefBrowser> >::iterator it = clientHandler_->browser_list_.begin(); it != clientHandler_->browser_list_.end(); it++)
 		{
 
 			if (nWebBrowserID == it->get()->GetIdentifier())
@@ -296,7 +296,7 @@ namespace DuiLib
 	void CCEFWebkitUI::GoForward(int nWebBrowserID)
 	{
 
-		for (std::vector<CefRefPtr<CefBrowser> >::iterator it = clientHandler_->browser_list_.begin(); it != clientHandler_->browser_list_.end(); it++)
+		for (vector<CefRefPtr<CefBrowser> >::iterator it = clientHandler_->browser_list_.begin(); it != clientHandler_->browser_list_.end(); it++)
 		{
 
 			if (nWebBrowserID == it->get()->GetIdentifier())
@@ -316,7 +316,7 @@ namespace DuiLib
 	BOOL CCEFWebkitUI::CanGoBack(int nWebBrowserID)
 	{
 
-		for (std::vector<CefRefPtr<CefBrowser> >::iterator it = clientHandler_->browser_list_.begin(); it != clientHandler_->browser_list_.end(); it++)
+		for (vector<CefRefPtr<CefBrowser> >::iterator it = clientHandler_->browser_list_.begin(); it != clientHandler_->browser_list_.end(); it++)
 		{
 
 			if (nWebBrowserID == it->get()->GetIdentifier())
@@ -330,7 +330,7 @@ namespace DuiLib
 
 	void CCEFWebkitUI::GoBack(int nWebBrowserID)
 	{
-		for (std::vector<CefRefPtr<CefBrowser> >::iterator it = clientHandler_->browser_list_.begin(); it != clientHandler_->browser_list_.end(); it++)
+		for (vector<CefRefPtr<CefBrowser> >::iterator it = clientHandler_->browser_list_.begin(); it != clientHandler_->browser_list_.end(); it++)
 		{
 
 			if (nWebBrowserID == it->get()->GetIdentifier())
@@ -347,7 +347,7 @@ namespace DuiLib
 	CefRefPtr<CefBrowser> CCEFWebkitUI::GetBrowserByID(int nWebBrowserID)
 	{
 
-		for (std::vector<CefRefPtr<CefBrowser> >::iterator it = clientHandler_->browser_list_.begin(); it != clientHandler_->browser_list_.end(); it++)
+		for (vector<CefRefPtr<CefBrowser> >::iterator it = clientHandler_->browser_list_.begin(); it != clientHandler_->browser_list_.end(); it++)
 		{
 
 			if (nWebBrowserID == it->get()->GetIdentifier())

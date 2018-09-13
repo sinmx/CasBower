@@ -64,7 +64,7 @@ public:
 	CefString m_strTitle; //ÍøÖ·±êÌâ
 
 	// List of existing browser windows. Only accessed on the CEF UI thread.
-	typedef std::vector<CefRefPtr<CefBrowser> > BrowserList;
+	typedef vector<CefRefPtr<CefBrowser> > BrowserList;
 	BrowserList browser_list_;
 
 private:

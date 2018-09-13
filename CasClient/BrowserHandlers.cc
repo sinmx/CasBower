@@ -176,10 +176,10 @@ void CCefClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser, CefRefPtr<Cef
 		return;
 
 	// Display a load error message.
-	std::stringstream ss;
+	stringstream ss;
 	ss << "<html><body bgcolor=\"white\">"
-		"<h2>Failed to load URL " << std::string(failedUrl) <<
-		" with error " << std::string(errorText) << " (" << errorCode <<
+		"<h2>Failed to load URL " << string(failedUrl) <<
+		" with error " << string(errorText) << " (" << errorCode <<
 		").</h2></body></html>";
 	frame->LoadString(ss.str(), failedUrl);
 }
@@ -226,34 +226,34 @@ void CCefClientHandler::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser, CefRe
 	//在这里，我添加了自己想要的菜单  
 	cef_context_menu_type_flags_t flag = params->GetTypeFlags();
 
-	if (flag&CM_TYPEFLAG_LINK)
-	{
-		model->Clear(); //清除所有菜单项
+	//if (flag&CM_TYPEFLAG_LINK)
+	//{
+	//	model->Clear(); //清除所有菜单项
 
-		model->AddItem(MENU_ID_USER_OPENLINK, L"在新标签页中打开(&T)");//增加菜单项
-		model->AddSeparator(); //加分隔线
-		model->AddItem(MENU_ID_USER_COPYLINK, L"复制链接地址(&C)");//增加菜单项
-		//model->SetEnabled(MENU_ID_USER_OPENLINK, false); //禁用菜单项。
-		return;
-	}
+	//	model->AddItem(MENU_ID_USER_OPENLINK, L"在新标签页中打开(&T)");//增加菜单项
+	//	model->AddSeparator(); //加分隔线
+	//	model->AddItem(MENU_ID_USER_COPYLINK, L"复制链接地址(&C)");//增加菜单项
+	//	//model->SetEnabled(MENU_ID_USER_OPENLINK, false); //禁用菜单项。
+	//	return;
+	//}
 
 
-	if (flag & CM_TYPEFLAG_PAGE)
-	{//普通页面的右键消息
+	//if (flag & CM_TYPEFLAG_PAGE)
+	//{//普通页面的右键消息
 
-		model->SetLabel(MENU_ID_BACK, L"后退");
-		model->SetLabel(MENU_ID_FORWARD, L"前进");
-		model->AddSeparator();
-		model->AddItem(MENU_ID_RELOAD, L"刷新");
-		model->AddItem(MENU_ID_RELOAD_NOCACHE, L"强制刷新");
-		model->AddItem(MENU_ID_STOPLOAD, L"停止加载");
-		
-		model->AddSeparator();
-		model->SetLabel(MENU_ID_PRINT, L"打印");
-		model->SetLabel(MENU_ID_VIEW_SOURCE, L"查看源代码");
-		model->AddItem(MENU_ID_USER_SHOWDEVTOOLS, L"开发者工具"); //"&Show DevTools");						  
+	//	model->SetLabel(MENU_ID_BACK, L"后退");
+	//	model->SetLabel(MENU_ID_FORWARD, L"前进");
+	//	model->AddSeparator();
+	//	model->AddItem(MENU_ID_RELOAD, L"刷新");
+	//	model->AddItem(MENU_ID_RELOAD_NOCACHE, L"强制刷新");
+	//	model->AddItem(MENU_ID_STOPLOAD, L"停止加载");
+	//	
+	//	model->AddSeparator();
+	//	model->SetLabel(MENU_ID_PRINT, L"打印");
+	//	model->SetLabel(MENU_ID_VIEW_SOURCE, L"查看源代码");
+	//	model->AddItem(MENU_ID_USER_SHOWDEVTOOLS, L"开发者工具"); //"&Show DevTools");						  
 
-	}
+	//}
 	if (flag & CM_TYPEFLAG_EDITABLE)
 	{//编辑框的右键消息  
 		model->SetLabel(MENU_ID_UNDO, L"撤销");
@@ -263,6 +263,14 @@ void CCefClientHandler::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser, CefRe
 		model->SetLabel(MENU_ID_PASTE, L"粘贴");
 		model->SetLabel(MENU_ID_DELETE, L"删除");
 		model->SetLabel(MENU_ID_SELECT_ALL, L"全选");
+	}
+	else if (flag & CM_TYPEFLAG_SELECTION)
+	{
+
+	}
+	else 
+	{
+		model->Clear(); //清除所有菜单项
 	}
 
 }

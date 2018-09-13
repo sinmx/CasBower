@@ -557,7 +557,7 @@ namespace DuiLib
 	{
 		Empty();
 		m_szBuffer[0] = ch;
-		m_szBuffer[1] = '\0';
+		m_szBuffer[1] = _T('\0');
 		return *this;
 	}
 
@@ -600,7 +600,7 @@ namespace DuiLib
 
 	const CDuiString& CDuiString::operator+=(const TCHAR ch)
 	{      
-		TCHAR str[] = { ch, '\0' };
+		TCHAR str[] = { ch, _T('\0') };
 		Append(str);
 		return *this;
 	}
@@ -1028,15 +1028,18 @@ namespace DuiLib
 
 	int CDuiString::Format(LPCTSTR pstrFormat, ...)
 	{
-		int nRet;
-		va_list Args;
-
-		va_start(Args, pstrFormat);
-		nRet = Format(pstrFormat, Args);
-		va_end(Args);
-
-		return nRet;
-
+		LPTSTR szSprintf = NULL;
+		va_list argList;
+        int nLen;
+		va_start(argList, pstrFormat);
+        nLen = _vsntprintf(NULL, 0, pstrFormat, argList);
+        szSprintf = (TCHAR*)malloc((nLen + 1) * sizeof(TCHAR));
+        ZeroMemory(szSprintf, (nLen + 1) * sizeof(TCHAR));
+		int iRet = _vsntprintf(szSprintf, nLen + 1, pstrFormat, argList);
+		va_end(argList);
+		Assign(szSprintf);
+        free(szSprintf);
+		return iRet;
 	}
 
 	int CDuiString::SmallFormat(LPCTSTR pstrFormat, ...)
