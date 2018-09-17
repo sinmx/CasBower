@@ -212,6 +212,7 @@ public:
 	
 private:		
 	bool m_bCanCloseExe;
+	wstring m_webHost;
 
 	static CEFWebkitBrowserWnd	*s_instance;
 	_ConnectionPtr			m_pConnection;

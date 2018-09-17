@@ -365,6 +365,7 @@
 				GenerateManifest="false"
 				DelayLoadDLLs=""
 				GenerateDebugInformation="true"
+				ProgramDatabaseFile="../Lib/$(TargetName).pdb"
 				BaseAddress="0x11000000"
 				ImportLibrary="../Lib/DuiLib_u.lib"
 				TargetMachine="1"

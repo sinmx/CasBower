@@ -14,7 +14,8 @@ private:
 	typedef map<pair<string, int>, pair<CefRefPtr<CefV8Context>, CefRefPtr<CefV8Value> > >CallbackMap;
 	CallbackMap callback_map_;
 
-	void getSql(string &cmd, const CefString &sql);
+	void getSql(const CefString &sql);
+	void newBill(const CefString &para);
 
 	//db
 	void getLogin(const CefString &para);

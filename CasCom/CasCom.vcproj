@@ -137,9 +137,11 @@
 				OutputFile="../bin/$(ProjectName).dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
+				ProgramDatabaseFile="../Lib/$(TargetName).pdb"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				ImportLibrary="../Lib/$(TargetName).lib"
 				TargetMachine="1"
 			/>
 			<Tool

@@ -8,6 +8,9 @@
 #include "writer.h"
 #include "prettywriter.h"
 #include "stringbuffer.h"
+#include <Winsock2.h>
+#include <time.h>
+#pragma comment(lib,"ws2_32.lib")
 
 CCEFV8HandlerEx::CCEFV8HandlerEx()
 {
@@ -183,6 +186,28 @@ char * UnicodeToANSI(const wchar_t *str)
 	return result;
 }
 
+string getIPAddress()
+{
+	WSADATA wsaData;  
+	char name[155];             
+	PHOSTENT hostinfo;   
+	std::string ip;
+
+	if (WSAStartup(MAKEWORD(2,0), &wsaData) == 0)   
+	{  
+		if(gethostname(name, sizeof(name)) == 0)   
+		{  
+			if((hostinfo = gethostbyname(name)) != NULL)   
+			{ 
+				ip = inet_ntoa(*(struct in_addr *)*hostinfo->h_addr_list);                   
+			}   
+		}   
+		WSACleanup();        
+	}  
+
+	return ip;
+}
+
 // 在JS里面调用 cef.onCallCpp("abc", "def");
 bool CCEFV8HandlerEx::Execute(const CefString& name  /*JavaScript调用的C++方法名字*/
 							  , CefRefPtr<CefV8Value> object /*JavaScript调用者对象*/
@@ -199,7 +224,7 @@ bool CCEFV8HandlerEx::Execute(const CefString& name  /*JavaScript调用的C++方法名
 
 		if (strParam1 == "getLogin")
 		{
-			//getSql(strParam2);
+			
 			getLogin(strParam2);
 			
 			CEFWebkitBrowserWnd::instance()->setCanClose(false);
@@ -212,6 +237,14 @@ bool CCEFV8HandlerEx::Execute(const CefString& name  /*JavaScript调用的C++方法名
 		else if (strParam1 == "setControlOut")
 		{
 			setControlOut(strParam2);
+		}
+		else if (strParam1 == "getSql")
+		{
+			getSql(strParam2);
+		}
+		else if (strParam1 == "newBill")
+		{
+			newBill(strParam2);
 		}
 
 		//TCHAR szBuffer[512];
@@ -242,60 +275,153 @@ void CCEFV8HandlerEx::cpp2web(string &cmd, string &value)
 	}
 }
 
-void CCEFV8HandlerEx::getSql(string &cmd, const CefString &sql)
+void CCEFV8HandlerEx::getSql(const CefString &sql)
 {
-	string strSql = base64_utf8_decode(sql);
+	string strDoc = base64_utf8_decode(sql);
 	_RecordsetPtr pSet;
 
-	//strSql = "select * from UserInfo";
-	int count(0);
+	rapidjson::Document	getObj;
+	getObj.Parse(strDoc.c_str());
+
+	if (getObj["cmd"].IsString() && getObj["sql"].IsString())
+	{
+		string strSql,strCmd;
+		strCmd = getObj["cmd"].GetString();
+		strSql = getObj["sql"].GetString();
+
+		//strSql = "select * from UserInfo";
+		int count(0);
+		if (0x00 == CEFWebkitBrowserWnd::instance()->OpenQuery(pSet, strSql))
+		{
+			if (!pSet->adoEOF)
+			{
+				_bstr_t key;
+				_variant_t value;
+				//生成Json串
+				rapidjson::Document setObj;    //生成一个dom元素Document
+				rapidjson::Document::AllocatorType &allocator = setObj.GetAllocator(); //获取分配器
+				rapidjson::Value val;
+				setObj.SetObject();    //将当前的Document设置为一个object，也就是说，整个Document是一个Object类型的dom元素
+
+				for (int i=0; i<pSet->Fields->Count; i++)
+				{
+					pSet->MoveFirst();
+					key = pSet->Fields->GetItem(long(i))->GetName();
+					//生成array
+					rapidjson::Value letterArray(rapidjson::kArrayType);//创建一个Array类型的元素
+					while (!pSet->adoEOF)
+					{
+						value.Clear();
+						value = pSet->Fields->GetItem(long(i))->GetValue();
+						if (value.vt == VT_NULL || value.vt>100)
+						{
+							letterArray.PushBack("", allocator);
+						}
+						else
+						{
+							letterArray.PushBack(val.SetString((const char*)(_bstr_t)value,allocator), allocator);
+						}
+
+						pSet->MoveNext();
+					}
+					setObj.AddMember(val.SetString(UnicodeToANSI(key.GetBSTR()),allocator), letterArray, allocator);
+				}
+
+				setObj.AddMember("cas_cmd", val.SetString(strCmd.c_str(), allocator), allocator);
+
+				//生成字符串
+				rapidjson::StringBuffer buffer;
+				rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+				setObj.Accept(writer);
+
+				string strJson = buffer.GetString();
+				cpp2web(string("getSql"), strJson);
+			}
+
+		}
+	}
+}
+
+void CCEFV8HandlerEx::newBill(const CefString &para)
+{
+	time_t rawtime ; 
+	struct tm * timeinfo; 
+	char s[256] = {0}; 
+	char s1[256] = {0}; 
+	time ( &rawtime ); 
+
+	timeinfo = localtime ( &rawtime ); 
+	time_t tick = mktime(timeinfo);
+	strftime(s, sizeof(s), "%Y%m%d%H%M%S", timeinfo);
+	strftime(s1, sizeof(s1), "%Y-%m-%d %H:%M:%S", timeinfo);
+	char Temp[1024] = {0};
+	string ip = getIPAddress();
+	sprintf(Temp, "%s-%s", s, ip.c_str());
+	string strRunningNumber = Temp;
+	ZeroMemory(Temp, sizeof(Temp));
+	string strManyNum = strRunningNumber.substr(2,4);
+	
+	sprintf(Temp, "select * from Many where manynum like '%s%%' and depart='%d'", strManyNum.c_str(), g_Part);
+	string strSql = Temp;
+	string strTemp;
+	_RecordsetPtr pSet;
 	if (0x00 == CEFWebkitBrowserWnd::instance()->OpenQuery(pSet, strSql))
 	{
-		if (!pSet->adoEOF)
+		if (pSet->adoEOF)
 		{
-			_bstr_t key;
-			_variant_t value;
-			//生成Json串
-			rapidjson::Document setObj;    //生成一个dom元素Document
-			rapidjson::Document::AllocatorType &allocator = setObj.GetAllocator(); //获取分配器
-			rapidjson::Value val;
-			setObj.SetObject();    //将当前的Document设置为一个object，也就是说，整个Document是一个Object类型的dom元素
-		
-			for (int i=0; i<pSet->Fields->Count; i++)
-			{
-				pSet->MoveFirst();
-				key = pSet->Fields->GetItem(long(i))->GetName();
-				//生成array
-				rapidjson::Value letterArray(rapidjson::kArrayType);//创建一个Array类型的元素
-				while (!pSet->adoEOF)
-				{
-					value.Clear();
-					value = pSet->Fields->GetItem(long(i))->GetValue();
-					if (value.vt == VT_NULL || value.vt>100)
-					{
-						letterArray.PushBack("", allocator);
-					}
-					else
-					{
-						letterArray.PushBack(val.SetString((const char*)(_bstr_t)value,allocator), allocator);
-					}
-					
-					pSet->MoveNext();
-				}
-				setObj.AddMember(val.SetString(UnicodeToANSI(key.GetBSTR()),allocator), letterArray, allocator);
-			}
-			
-
-			//生成字符串
-			rapidjson::StringBuffer buffer;
-			rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-			setObj.Accept(writer);
-
-			string strJson = buffer.GetString();
-			cpp2web(cmd, strJson);
+			CEFWebkitBrowserWnd::instance()->CloseQuery(pSet);
+			strManyNum += "00001";
 		}
-
+		else
+		{
+			CEFWebkitBrowserWnd::instance()->CloseQuery(pSet);
+			ZeroMemory(Temp, sizeof(Temp));
+			sprintf(Temp, "select max(manynum) maxnum from many where manynum like '%s%%' and depart='%d'", strManyNum.c_str(), g_Part);
+			strSql = Temp;
+			//m_strSQL.Format(L"select max(manynum) maxnum from many where manynum like '%%%s%%' and depart='%s'", m_strManyNum, m_strBigDepart);
+			if (0x00 == CEFWebkitBrowserWnd::instance()->OpenQuery(pSet, strSql))
+			{
+				strTemp = CEFWebkitBrowserWnd::instance()->getField(pSet, "maxnum");
+				sprintf(Temp, "%05d", atoi(strTemp.substr(4,5).c_str())+1);
+				strManyNum += Temp;
+			}
+			CEFWebkitBrowserWnd::instance()->CloseQuery(pSet);
+		}
 	}
+	CEFWebkitBrowserWnd::instance()->CloseQuery(pSet);
+	ZeroMemory(Temp, sizeof(Temp));
+
+	string strDoc = base64_utf8_decode(para);
+	rapidjson::Document	getObj;
+	getObj.Parse(strDoc.c_str());
+
+
+
+	sprintf(Temp, "insert into Many(runningnumber, manynum, dater, scan, done, depart,tank,hltank) values('%s','%s','%s','0','0','%d','%s','%s')"
+		, strRunningNumber.c_str(), strManyNum.c_str(), s1, g_Part, getObj["many"]["tank"].GetString(), getObj["many"]["hltank"].GetString());
+	strSql = Temp;
+	CEFWebkitBrowserWnd::instance()->ExecuteDML(strSql);
+
+	//manyone
+
+
+	UINT count = getObj["manyone"].Size();
+
+	for (UINT i=0; i<count; i++)
+	{
+		if (getObj["manyone"][i]["dyename"].IsString()
+			&&getObj["manyone"][i]["dosage"].IsString())
+		{
+			ZeroMemory(Temp, sizeof(Temp));
+			sprintf(Temp, "insert into ManyOne(processnum, dyenum, dosage,manynum, done, depart) values('%03d','%s',%.3f,'%s','0','%d')"
+				, i+1, getObj["manyone"][i]["dyename"].GetString(), atof(getObj["manyone"][i]["dosage"].GetString())
+				, strRunningNumber.c_str(), g_Part);
+			strSql = Temp;
+			CEFWebkitBrowserWnd::instance()->ExecuteDML(strSql);
+
+		}
+	}
+
 }
 
 void CCEFV8HandlerEx::getLogin(const CefString &para)

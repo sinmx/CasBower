@@ -185,7 +185,11 @@ void CEFWebkitBrowserWnd::InitWindow()
 
 void CEFWebkitBrowserWnd::Notify(TNotifyUI& msg)
 {
-	//if (msg.sType == DUI_MSGTYPE_CLICK)
+	if (msg.sType == _T("windowinit"))
+	{
+		OnInitComplate();
+	}	
+	//else if (msg.sType == DUI_MSGTYPE_CLICK)
 	//{
 	//	if (msg.pSender->GetName() == _T("ui_btn_goback"))
 	//	{
@@ -244,10 +248,6 @@ void CEFWebkitBrowserWnd::Notify(TNotifyUI& msg)
 
 
 	//}
-	//else if (msg.sType == _T("windowinit"))
-	//{
-	//	OnInitComplate();
-	//}
 	//else if (msg.sType == DUI_MSGTYPE_TIMER)
 	//{
 	//	if (msg.pSender == m_pWKEWebkitCtrl)
@@ -262,7 +262,7 @@ void CEFWebkitBrowserWnd::Notify(TNotifyUI& msg)
 	//}
 
 
-	//__super::Notify(msg);
+	__super::Notify(msg);
 }
 
 LRESULT CEFWebkitBrowserWnd::HandleCustomMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -394,7 +394,7 @@ void CEFWebkitBrowserWnd::init()
 {
 	//init
 	m_bCanCloseExe = true;
-	
+
 	//db
 	CNHSQLServerDBO::CloseDB(m_pConnection);
 	if (0x00 != CNHSQLServerDBO::OpenDB(m_pConnection))
@@ -403,15 +403,17 @@ void CEFWebkitBrowserWnd::init()
 		return;
 	}
 
+	getPart();
+
 	if (m_pWKEWebkitCtrl)
 	{
 		//string sFile = CPaintManagerUI::GetResourcePath() + _T("dist\\index.html");
 		//m_pWKEWebkitCtrl->NewPage(sFile.c_str());
 
-		m_pWKEWebkitCtrl->NewPage(_T("http://localhost:8080/#/login"));
+		m_pWKEWebkitCtrl->NewPage(m_webHost);
 	}
 
-	getPart();
+	
 	getDBOInfo();
 
 
@@ -432,6 +434,8 @@ void CEFWebkitBrowserWnd::getPart()
 		wchar_t wchTmp[MAX_PATH] = {0};
 		GetPrivateProfileString(L"Database", L"Depart", L"", wchTmp, MAX_PATH, wchPath);
 		g_Part = _wtoi(wchTmp);
+		GetPrivateProfileString(L"Database", L"Web", L"", wchTmp, MAX_PATH, wchPath);
+		m_webHost = wchTmp;
 	}
 }
 
@@ -712,7 +716,7 @@ void CEFWebkitBrowserWnd::setControlOut(const SControlOut & info)
 	strSql += info.water_come;
 	strSql += "', water_put='";
 	strSql += info.water_put;
-	
+
 	strSql += "', cy_come='";
 	strSql += info.cy_come;
 
