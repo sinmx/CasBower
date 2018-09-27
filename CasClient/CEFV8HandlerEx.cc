@@ -223,16 +223,17 @@ bool CCEFV8HandlerEx::Execute(const CefString& name  /*JavaScript调用的C++方法名
 		CefString strParam2 = arguments.at(1)->GetStringValue();
 
 		if (strParam1 == "getLogin")
-		{
-			
-			getLogin(strParam2);
-			
-			CEFWebkitBrowserWnd::instance()->setCanClose(false);
-			
+		{			
+			getLogin(strParam2);			
+			CEFWebkitBrowserWnd::instance()->setCanClose(true);		
 		} 
 		else if (strParam1 == "getControlOut")
 		{
 			getControlOut();
+		}
+		else if (strParam1 == "getInfo")
+		{
+			getInfo();
 		}
 		else if (strParam1 == "setControlOut")
 		{
@@ -242,9 +243,17 @@ bool CCEFV8HandlerEx::Execute(const CefString& name  /*JavaScript调用的C++方法名
 		{
 			getSql(strParam2);
 		}
+		else if (strParam1 == "setSql")
+		{
+			setSql(strParam2);
+		}
 		else if (strParam1 == "newBill")
 		{
 			newBill(strParam2);
+		}
+		else if (strParam1 == "modifyBill")
+		{
+			modifyBill(strParam2);
 		}
 
 		//TCHAR szBuffer[512];
@@ -342,6 +351,12 @@ void CCEFV8HandlerEx::getSql(const CefString &sql)
 	}
 }
 
+void CCEFV8HandlerEx::setSql(const CefString &sql)
+{
+	string strSql = base64_utf8_decode(sql);
+	CEFWebkitBrowserWnd::instance()->ExecuteDML(strSql);
+}
+
 void CCEFV8HandlerEx::newBill(const CefString &para)
 {
 	time_t rawtime ; 
@@ -409,12 +424,12 @@ void CCEFV8HandlerEx::newBill(const CefString &para)
 
 	for (UINT i=0; i<count; i++)
 	{
-		if (getObj["manyone"][i]["dyename"].IsString()
+		if (getObj["manyone"][i]["dyenum"].IsString()
 			&&getObj["manyone"][i]["dosage"].IsString())
 		{
 			ZeroMemory(Temp, sizeof(Temp));
-			sprintf(Temp, "insert into ManyOne(processnum, dyenum, dosage,manynum, done, depart) values('%03d','%s',%.3f,'%s','0','%d')"
-				, i+1, getObj["manyone"][i]["dyename"].GetString(), atof(getObj["manyone"][i]["dosage"].GetString())
+			sprintf(Temp, "insert into ManyOne(processnum, dyenum, dosage, manynum, done, depart) values('%03d','%s',%.3f,'%s','0','%d')"
+				, i+1, getObj["manyone"][i]["dyenum"].GetString(), atof(getObj["manyone"][i]["dosage"].GetString())
 				, strRunningNumber.c_str(), g_Part);
 			strSql = Temp;
 			CEFWebkitBrowserWnd::instance()->ExecuteDML(strSql);
@@ -422,6 +437,46 @@ void CCEFV8HandlerEx::newBill(const CefString &para)
 		}
 	}
 
+}
+
+void CCEFV8HandlerEx::modifyBill(const CefString &para)
+{
+	char Temp[1024] = {0};
+	string strSql;
+	string strTemp;
+
+	string strDoc = base64_utf8_decode(para);
+	rapidjson::Document	getObj;
+	getObj.Parse(strDoc.c_str());
+
+	sprintf(Temp, "update Many set tank='%s', hltank='%s' where runningnumber='%s'"
+		,getObj["many"]["tank"].GetString(), getObj["many"]["hltank"].GetString(),getObj["many"]["runningnumber"].GetString());
+	strSql = Temp;
+	CEFWebkitBrowserWnd::instance()->ExecuteDML(strSql);
+
+	//manyone
+	ZeroMemory(Temp, sizeof(Temp));
+	sprintf(Temp, "delete from ManyOne where manynum='%s'",getObj["many"]["runningnumber"].GetString());
+	strSql = Temp;
+	CEFWebkitBrowserWnd::instance()->ExecuteDML(strSql);
+
+
+	UINT count = getObj["manyone"].Size();
+
+	for (UINT i=0; i<count; i++)
+	{
+		if (getObj["manyone"][i]["dyenum"].IsString()
+			&&getObj["manyone"][i]["dosage"].IsString())
+		{
+			ZeroMemory(Temp, sizeof(Temp));
+			sprintf(Temp, "insert into ManyOne(processnum, dyenum, dosage, manynum, done, depart) values('%03d','%s',%.3f,'%s','0','%d')"
+				, i+1, getObj["manyone"][i]["dyenum"].GetString(), atof(getObj["manyone"][i]["dosage"].GetString())
+				, getObj["many"]["runningnumber"].GetString(), g_Part);
+			strSql = Temp;
+			CEFWebkitBrowserWnd::instance()->ExecuteDML(strSql);
+
+		}
+	}
 }
 
 void CCEFV8HandlerEx::getLogin(const CefString &para)
@@ -485,18 +540,46 @@ void CCEFV8HandlerEx::getLogin(const CefString &para)
 
 		string strJson = buffer.GetString();
 		cpp2web(string("getLogin"), strJson);
-		//strJson = string_To_UTF8(strJson);
-		//strJson = "window.getLogin({\"value\":\"" + base64_encode((const BYTE*)strJson.c_str(), strJson.length()) + "\"});";
-		//CefString str;
-		//str.FromString(strJson);
-
-		//CefRefPtr<CefBrowser> pBrower = CEFWebkitBrowserWnd::instance()->m_pWKEWebkitCtrl->GetBrowserByID(1);
-		//if (pBrower)
-		//{
-		//	pBrower->GetMainFrame().get()->ExecuteJavaScript(str, pBrower->GetMainFrame().get()->GetURL(), 0);
-		//}
+		
 	}
 
+
+}
+
+void CCEFV8HandlerEx::getInfo()
+{
+	char Temp[1024] = {0};
+	string strPart;
+	sprintf(Temp, "%d", g_Part);
+	strPart = Temp;
+	map<string,string> info;
+	info["depart"] = strPart;
+
+	setJson(string("getInfo"), info);
+
+}
+
+void CCEFV8HandlerEx::setJson(string &cmd, map<string,string> &info)
+{
+	//生成Json串
+	rapidjson::Document setObj;
+	rapidjson::Document::AllocatorType &allocator = setObj.GetAllocator();
+	rapidjson::Value key;
+	rapidjson::Value value;
+	setObj.SetObject();
+
+	for (map<string,string>::iterator it=info.begin(); it!=info.end(); ++it)
+	{
+		setObj.AddMember(key.SetString(it->first.c_str(), allocator), value.SetString(it->second.c_str(), allocator), allocator);
+	}
+
+	//生成字符串
+	rapidjson::StringBuffer buffer;
+	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+	setObj.Accept(writer);
+
+	string strJson = buffer.GetString();
+	cpp2web(cmd, strJson);
 
 }
 
@@ -561,3 +644,5 @@ void CCEFV8HandlerEx::setControlOut(const CefString &para)
 	CEFWebkitBrowserWnd::instance()->setControlOut(info);
 
 }
+
+

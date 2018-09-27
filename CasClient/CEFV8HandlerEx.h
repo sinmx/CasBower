@@ -15,17 +15,21 @@ private:
 	CallbackMap callback_map_;
 
 	void getSql(const CefString &sql);
+	void setSql(const CefString &sql);
 	void newBill(const CefString &para);
+	void modifyBill(const CefString &para);
 
 	//db
 	void getLogin(const CefString &para);
 
 
 	//web interface
+	void getInfo();
 	void getControlOut();
 	void setControlOut(const CefString &para);
 
 	//common
+	void setJson(string &cmd, map<string,string> &info);
 	void cpp2web(string &cmd, string &value);
 
 public:
