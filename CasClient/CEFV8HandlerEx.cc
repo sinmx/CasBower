@@ -22,55 +22,59 @@ CCEFV8HandlerEx::~CCEFV8HandlerEx()
 
 }
 
-static const string base64_chars =
-"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-"abcdefghijklmnopqrstuvwxyz"
-"0123456789+/";
+//static const string base64_chars =
+//"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+//"abcdefghijklmnopqrstuvwxyz"
+//"0123456789+/";
 
 static inline bool is_base64(BYTE c) {
 	return (isalnum(c) || (c == '+') || (c == '/'));
 }
 
-string base64_encode(BYTE const* buf, unsigned int bufLen) {
-	string ret;
-	int i = 0;
-	int j = 0;
-	BYTE char_array_3[3];
-	BYTE char_array_4[4];
-
-	while (bufLen--) {
-		char_array_3[i++] = *(buf++);
-		if (i == 3) {
-			char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
-			char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
-			char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
-			char_array_4[3] = char_array_3[2] & 0x3f;
-
-			for (i = 0; (i < 4); i++)
-				ret += base64_chars[char_array_4[i]];
-			i = 0;
-		}
-	}
-
-	if (i)
-	{
-		for (j = i; j < 3; j++)
-			char_array_3[j] = '\0';
-
-		char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
-		char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
-		char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
-		char_array_4[3] = char_array_3[2] & 0x3f;
-
-		for (j = 0; (j < i + 1); j++)
-			ret += base64_chars[char_array_4[j]];
-
-		while ((i++ < 3))
-			ret += '=';
-	}
-
-	return ret;
-}
+//string base64_encode(BYTE const* buf, unsigned int bufLen) {
+//	string ret;
+//	int i = 0;
+//	int j = 0;
+//	BYTE char_array_3[3];
+//	BYTE char_array_4[4];
+//	string base64_chars =
+//		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+//		"abcdefghijklmnopqrstuvwxyz"
+//		"0123456789+/";
+//
+//	while (bufLen--) {
+//		char_array_3[i++] = *(buf++);
+//		if (i == 3) {
+//			char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+//			char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+//			char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+//			char_array_4[3] = char_array_3[2] & 0x3f;
+//
+//			for (i = 0; (i < 4); i++)
+//				ret += base64_chars[char_array_4[i]];
+//			i = 0;
+//		}
+//	}
+//
+//	if (i)
+//	{
+//		for (j = i; j < 3; j++)
+//			char_array_3[j] = '\0';
+//
+//		char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+//		char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+//		char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+//		char_array_4[3] = char_array_3[2] & 0x3f;
+//
+//		for (j = 0; (j < i + 1); j++)
+//			ret += base64_chars[char_array_4[j]];
+//
+//		while ((i++ < 3))
+//			ret += '=';
+//	}
+//
+//	return ret;
+//}
 
 vector<BYTE> base64_decode(string const& encoded_string) {
 	int in_len = encoded_string.size();
@@ -79,6 +83,10 @@ vector<BYTE> base64_decode(string const& encoded_string) {
 	int in_ = 0;
 	BYTE char_array_4[4], char_array_3[3];
 	vector<BYTE> ret;
+	string base64_chars =
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		"abcdefghijklmnopqrstuvwxyz"
+		"0123456789+/";
 
 	while (in_len-- && (encoded_string[in_] != '=') && is_base64(encoded_string[in_])) {
 		char_array_4[i++] = encoded_string[in_]; in_++;
@@ -140,32 +148,32 @@ std::string UTF8_To_string(const std::string & str)
 	return retStr; 
 } 
 
-string string_To_UTF8(const string & str) 
-{ 
-	int nwLen = ::MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0); 
-
-	wchar_t * pwBuf = new wchar_t[nwLen + 1];//一定要加1，不然会出现尾巴 
-	ZeroMemory(pwBuf, nwLen * 2 + 2); 
-
-	::MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.length(), pwBuf, nwLen); 
-
-	int nLen = ::WideCharToMultiByte(CP_UTF8, 0, pwBuf, -1, NULL, NULL, NULL, NULL); 
-
-	char * pBuf = new char[nLen + 1]; 
-	ZeroMemory(pBuf, nLen + 1); 
-
-	::WideCharToMultiByte(CP_UTF8, 0, pwBuf, nwLen, pBuf, nLen, NULL, NULL); 
-
-	string retStr(pBuf); 
-
-	delete []pwBuf; 
-	delete []pBuf; 
-
-	pwBuf = NULL; 
-	pBuf  = NULL; 
-
-	return retStr; 
-}
+//string string_To_UTF8(const string & str) 
+//{ 
+//	int nwLen = ::MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0); 
+//
+//	wchar_t * pwBuf = new wchar_t[nwLen + 1];//一定要加1，不然会出现尾巴 
+//	ZeroMemory(pwBuf, nwLen * 2 + 2); 
+//
+//	::MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.length(), pwBuf, nwLen); 
+//
+//	int nLen = ::WideCharToMultiByte(CP_UTF8, 0, pwBuf, -1, NULL, NULL, NULL, NULL); 
+//
+//	char * pBuf = new char[nLen + 1]; 
+//	ZeroMemory(pBuf, nLen + 1); 
+//
+//	::WideCharToMultiByte(CP_UTF8, 0, pwBuf, nwLen, pBuf, nLen, NULL, NULL); 
+//
+//	string retStr(pBuf); 
+//
+//	delete []pwBuf; 
+//	delete []pBuf; 
+//
+//	pwBuf = NULL; 
+//	pBuf  = NULL; 
+//
+//	return retStr; 
+//} 
 
 string base64_utf8_decode(const CefString &para)
 {
@@ -255,6 +263,11 @@ bool CCEFV8HandlerEx::Execute(const CefString& name  /*JavaScript调用的C++方法名
 		{
 			modifyBill(strParam2);
 		}
+		else if (strParam1 == "setCon")
+		{
+			setCon(strParam2);
+		}
+		
 
 		//TCHAR szBuffer[512];
 		//StringCbPrintf(szBuffer, sizeof(szBuffer), _T("jsInvokeCPlusPlus(%s,%s)"), strParam1.c_str(), strParam2.c_str());
@@ -267,22 +280,22 @@ bool CCEFV8HandlerEx::Execute(const CefString& name  /*JavaScript调用的C++方法名
 	return false;
 }
 
-void CCEFV8HandlerEx::cpp2web(string &cmd, string &value)
-{
-	string strJson = string_To_UTF8(value);
-	strJson = "window."+ cmd + "({\"value\":\"" + base64_encode((const BYTE*)strJson.c_str(), strJson.length()) + "\"});";
-	//strJson = "window.getLoginRsp({\"abc\":\"eyJlcnJvciI6IiIsInJvbGUiOjB9\"});";
-	//执行js测试
-	//CefString str(L"window.getLoginRsp(22);");
-	CefString str;
-	str.FromString(strJson);
-
-	CefRefPtr<CefBrowser> pBrower = CEFWebkitBrowserWnd::instance()->m_pWKEWebkitCtrl->GetBrowserByID(1);
-	if (pBrower)
-	{
-		pBrower->GetMainFrame().get()->ExecuteJavaScript(str, pBrower->GetMainFrame().get()->GetURL(), 0);
-	}
-}
+//void CCEFV8HandlerEx::cpp2web(string &cmd, string &value)
+//{
+//	string strJson = string_To_UTF8(value);
+//	strJson = "window."+ cmd + "({\"value\":\"" + base64_encode((const BYTE*)strJson.c_str(), strJson.length()) + "\"});";
+//	//strJson = "window.getLoginRsp({\"abc\":\"eyJlcnJvciI6IiIsInJvbGUiOjB9\"});";
+//	//执行js测试
+//	//CefString str(L"window.getLoginRsp(22);");
+//	CefString str;
+//	str.FromString(strJson);
+//
+//	CefRefPtr<CefBrowser> pBrower = CEFWebkitBrowserWnd::instance()->m_pWKEWebkitCtrl->GetBrowserByID(1);
+//	if (pBrower)
+//	{
+//		pBrower->GetMainFrame().get()->ExecuteJavaScript(str, pBrower->GetMainFrame().get()->GetURL(), 0);
+//	}
+//}
 
 void CCEFV8HandlerEx::getSql(const CefString &sql)
 {
@@ -344,7 +357,7 @@ void CCEFV8HandlerEx::getSql(const CefString &sql)
 				setObj.Accept(writer);
 
 				string strJson = buffer.GetString();
-				cpp2web(string("getSql"), strJson);
+				CEFWebkitBrowserWnd::instance()->cpp2web(string("getSql"), strJson);
 			}
 
 		}
@@ -479,6 +492,31 @@ void CCEFV8HandlerEx::modifyBill(const CefString &para)
 	}
 }
 
+void CCEFV8HandlerEx::setCon(const CefString &para)
+{
+	string strDoc = base64_utf8_decode(para);
+	_RecordsetPtr pSet;
+
+	rapidjson::Document	getObj;
+	getObj.Parse(strDoc.c_str());
+
+	if (getObj["cmd"].IsString() && getObj["para"].IsString())
+	{
+		string strPara,strCmd;
+		strCmd = getObj["cmd"].GetString();
+		strPara = getObj["para"].GetString();
+
+		map<string,string> info;
+		info["cas_cmd"] = strCmd;
+		info["ret"] = "0";
+		CEFWebkitBrowserWnd::instance()->setJson(string("setCon"), info);
+
+
+		//开始逻辑
+		
+	}
+}
+
 void CCEFV8HandlerEx::getLogin(const CefString &para)
 {
 	string strDoc = base64_utf8_decode(para);
@@ -539,7 +577,7 @@ void CCEFV8HandlerEx::getLogin(const CefString &para)
 		setObj.Accept(writer);
 
 		string strJson = buffer.GetString();
-		cpp2web(string("getLogin"), strJson);
+		CEFWebkitBrowserWnd::instance()->cpp2web(string("getLogin"), strJson);
 		
 	}
 
@@ -555,33 +593,33 @@ void CCEFV8HandlerEx::getInfo()
 	map<string,string> info;
 	info["depart"] = strPart;
 
-	setJson(string("getInfo"), info);
+	CEFWebkitBrowserWnd::instance()->setJson(string("getInfo"), info);
 
 }
 
-void CCEFV8HandlerEx::setJson(string &cmd, map<string,string> &info)
-{
-	//生成Json串
-	rapidjson::Document setObj;
-	rapidjson::Document::AllocatorType &allocator = setObj.GetAllocator();
-	rapidjson::Value key;
-	rapidjson::Value value;
-	setObj.SetObject();
-
-	for (map<string,string>::iterator it=info.begin(); it!=info.end(); ++it)
-	{
-		setObj.AddMember(key.SetString(it->first.c_str(), allocator), value.SetString(it->second.c_str(), allocator), allocator);
-	}
-
-	//生成字符串
-	rapidjson::StringBuffer buffer;
-	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-	setObj.Accept(writer);
-
-	string strJson = buffer.GetString();
-	cpp2web(cmd, strJson);
-
-}
+//void CCEFV8HandlerEx::setJson(string &cmd, map<string,string> &info)
+//{
+//	//生成Json串
+//	rapidjson::Document setObj;
+//	rapidjson::Document::AllocatorType &allocator = setObj.GetAllocator();
+//	rapidjson::Value key;
+//	rapidjson::Value value;
+//	setObj.SetObject();
+//
+//	for (map<string,string>::iterator it=info.begin(); it!=info.end(); ++it)
+//	{
+//		setObj.AddMember(key.SetString(it->first.c_str(), allocator), value.SetString(it->second.c_str(), allocator), allocator);
+//	}
+//
+//	//生成字符串
+//	rapidjson::StringBuffer buffer;
+//	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+//	setObj.Accept(writer);
+//
+//	string strJson = buffer.GetString();
+//	CEFWebkitBrowserWnd::instance()->cpp2web(cmd, strJson);
+//
+//}
 
 void CCEFV8HandlerEx::getControlOut()
 {
@@ -614,7 +652,7 @@ void CCEFV8HandlerEx::getControlOut()
 	setObj.Accept(writer);
 
 	string strJson = buffer.GetString();
-	cpp2web(string("getControlOut"), strJson);
+	CEFWebkitBrowserWnd::instance()->cpp2web(string("getControlOut"), strJson);
 }
 
 void CCEFV8HandlerEx::setControlOut(const CefString &para)

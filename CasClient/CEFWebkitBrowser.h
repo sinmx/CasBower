@@ -3,6 +3,8 @@
 #include "resource.h"
 #include "CEFWebkit.h"
 #include <map>
+
+//控制部分全在这里
 using namespace std;
 
 struct SBillingInfo
@@ -79,7 +81,7 @@ struct SControlIn
 };
 
 extern UINT g_Part;
-extern bool g_test;
+extern bool g_Saline;
 
 struct SBaseConfig
 {
@@ -127,7 +129,131 @@ struct SMachineInfo
 	SMachineInfo():pPLC(NULL),pFlow(NULL),bUse(false){}
 };
 
-extern UINT g_Part;
+struct SWeightInfo
+{
+	UINT index;
+	string processnum;
+	string processname;
+	string dyenum;
+	string dyename;
+	string id;
+	string manynum;
+	float dosage;
+	string unit;
+	string waterLevel;
+	vector<string> line;
+	//0-未称 1-正在称 2-已称完
+	UINT type;
+	SWeightInfo():type(0),dosage(0.0f),id(""){}
+};
+
+struct SReadingStatus
+{
+	enum TYPEENUM
+	{
+		NType = 0,
+		RType,
+		WType,
+		WRType,
+		RWType,
+		RFType,
+		WTType,//延时逻辑
+	};
+	TYPEENUM type;
+	bool bWaiting;//是否等待模式
+	bool bWaiting1;//是否等待模式1
+	bool bOpen;//W use
+	string getPort;
+	string setPort;
+	string alarmPort;
+	enum FROMENUM
+	{
+		FROM_STARTWEIGHT = 0,
+		FROM_WEIGHTCOLLECT,
+		FROM_WASHWEIGHT,
+		FROM_WASHCOLLECT,
+		FROM_WASHAFTER,
+		FROM_PUTWATER,
+		FROM_PUTGAS,
+	};
+	FROMENUM from;//在哪个地方调用的
+	UINT step;//具体哪一步调用的
+	int status;
+	UINT nWaitTime;
+	SReadingStatus():type(NType),bOpen(true),getPort(""),setPort(""),alarmPort(""),from(FROM_STARTWEIGHT),step(0),status(-1),bWaiting(false),nWaitTime(0){}
+
+	void clear()
+	{
+		type = NType;
+		bOpen = true;
+		bWaiting = false;
+		getPort = "";
+		setPort = "";
+		bWaiting1 = true;
+	}
+};
+
+enum EmSetp
+{
+	NO_WEIGHT,
+	READY_WEIGHT,
+	WEIGHTING,
+	FINISH_WEIGHT,
+	WASHING,//水洗
+	WASHEND,//水洗完成
+};
+
+enum EmTime
+{
+	//定时器
+	ETIME_CyStatus,
+	ETIME_Collect,
+	ETIME_Unloop,
+	ETIME_preLoop,
+	ETIME_Loop,
+	ETIME_NextBilling,
+	//水洗完定时
+	ETIME_AfterWater,
+	//放水时间定时
+	ETIME_AfterPutWater,
+	//放气时间
+	ETIME_AfterPutGas,
+	//料之间间隔
+	ETIME_CYSpit,
+	//水洗间隔
+	ETIME_WaterSpit,
+
+	ETIME_ListBill,
+};
+
+enum EmZType {
+	PLC_RO = 1,//读取 端口状态开
+	PLC_RC,//读取 端口状态关
+	PLC_WO,//写入 端口打开
+	PLC_WC,//写入 端口关闭
+	FLW_R,//读取 流量计状态
+	FKW_C,//流量计计数
+	SYS_WAIT,//等待 单位毫秒
+
+};
+
+struct SZuhe {
+	
+	int system;
+	bool is_start;
+	EmZType code;
+	string para_name;
+	string para;
+	string para_unit;
+	bool is_loop;	
+	string loop_table;
+	int next;
+	int next_is_loop;
+	bool is_end;
+	bool is_done;
+
+};
+
 class CEFWebkitBrowserWnd : public WindowImplBase
 {
 public:
@@ -172,8 +298,9 @@ public:
 public:  
     wstring m_strURL;
     wstring m_strTitle;
-    CCEFWebkitUI* m_pWKEWebkitCtrl; 
-
+    CCEFWebkitUI* m_pWKEWebkitCtrl;
+	void setJson(string &cmd, map<string,string> &info);
+	void cpp2web(string &cmd, string &value);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //业务逻辑
@@ -209,6 +336,25 @@ public:
 	bool getCanClose() {return m_bCanCloseExe;}
 
 	void static WINAPI onTimeFunc(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWORD dw2);
+
+//流程控制
+public:
+	void startWeight();
+	bool setSta(const SReadingStatus::TYPEENUM type,
+		UINT &step,
+		bool bOpen,
+		bool bRDuan,
+		const string text,
+		const string setP,
+		const string getP,
+		const string alarm);
+
+	SDyeControl getDyeControlByNum(const string & dyenum);
+	SVatsInfo getVatsInfoByNum(const string & num);
+
+	void unloopProcess();
+	void preLoop();
+	void loopProcess();
 	
 private:		
 	bool m_bCanCloseExe;
@@ -230,5 +376,91 @@ private:
 	//当前的参数
 	float m_flowIn;
 	float m_flowOut;
+
+	//步骤
+	EmSetp m_emStep;
+
+
+	//定时器
+	UINT	m_timerCyStatus;
+	UINT	m_timerCollect;
+	UINT	m_timerUnloop;
+	UINT	m_timerLoop;
+	UINT	m_timerNextBilling;
+	//水洗完定时
+	UINT	m_timerAfterWater;
+	//放水时间定时
+	UINT	m_timerAfterPutWater;
+	//放气时间
+	UINT	m_timerAfterPutGas;
+	//料之间间隔
+	UINT	m_timerCYSpit;
+	//水洗间隔
+	UINT	m_timerWaterSpit;
+	UINT	m_timerListBill;
+	UINT	m_timerDelayClose;
+
+	vector<SWeightInfo> m_vecWeightInfo;
+	//开始重量
+	float m_fStart;
+	//目标重量
+	float m_fTarget;
+	// 剩余重量
+	float m_fRemain;
+	// 当前已称重量
+	float m_fCurrent;
+	//水洗量 根据染缸来
+	float m_fWater;
+	//提前量
+	float m_fBefore;
+	//setSta
+	float m_fSetSta;
+	bool m_bBefore;
+	//水洗后时间 按照染缸来
+	UINT m_nAfterWater;
+	string m_strPos, m_strPlcPos;
+	string m_strManyNum;
+	string m_strVatsNum;
+	string m_strDyeNum;
+	string m_strMany_RunningNumber;
+	string m_strBill_RunningNumber;
+
+	string m_strclientname;
+	string m_strprojectname;
+	string m_strcolorname;
+	string m_strclientcolor;
+	string m_strkind;
+	string m_strPortAlarm;
+	string m_strWGAlarm;
+	string m_strFreqAlarm;
+	bool m_bAuto;
+	//超级全自动，不用确认开始
+	bool m_bSuperAuto;
+	bool m_bManualFirst;
+	bool m_bManual;
+	bool m_bManualModify;
+	bool m_bNormalFirst;
+	bool m_bSetRun;
+
+
+	int m_nStep;//到哪个料
+	UINT m_nDetails;//详情
+	SReadingStatus m_Read;
+	map<UINT,	void (CEFWebkitBrowserWnd::*)()> funcmap;
+	
+	bool m_bDelayClose;
+
+	vector<SZuhe> m_Additive;
+	vector<SZuhe> m_Saline;
+	vector<SZuhe> m_ZuheLoop;
+	int m_ProcessStep;
+
+	CasT *m_AdditivePLC;	
+	CasT* m_AdditiveFlow;
+
+
+private:
+	void startTimer(UINT &timer, UINT uDelay,WORD dwUser,UINT fuEvent);
+	void killTimer(UINT &timer);
 
 };
